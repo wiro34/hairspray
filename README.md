@@ -75,19 +75,6 @@ public class ExampleTest {
 }
 ```
 
-## Advanced factory
+## and more
 
-### Create with another entity:
-
-```
-@Factory(Post.class)
-public class PostFactory {
-
-    @Inject
-    private EntityManager entityManager;
-
-    public Function<Post, User> auther = (post) -> {
-        post.getUser() == null ? entityManager.create( ... ) : post.getUser();
-    };
-}
-```
+see [example](example)
