@@ -1,60 +1,77 @@
 package com.github.wiro34.hairspray;
 
 import com.github.wiro34.hairspray.exception.PropertyManufactureException;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.List;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
-public class InstanceAssembler {
+class InstanceAssembler {
 
-    /**
-     * インスタンスにファクトリで生成された値をはめ込みます。
-     *
-     * インスタンスの各フィールドに対応するファクトリのメソッドを呼び出し、その戻り値をインスタンスに設定します。
-     * ファクトリメソッドが見つからない場合、初期化は行われません。
-     *
-     * このメソッドは引数で渡された instance を更新します。
-     *
-     * @param <T>
-     * @param instance 設定するインスタンス
-     * @param factory ファクトリオブジェクト
-     * @return 設定済みインスタンス
-     */
-    public static <T> T assemble(T instance, Object factory) {
-        Class<?> modelClass = instance.getClass();
-        T assembled = Arrays.stream(modelClass.getDeclaredFields()).reduce(instance, (ins, field) -> {
-            final String fieldName = field.getName();
-            if (hasMethod(factory, fieldName)) {
-                try {
-                    Method setter = modelClass.getMethod(setterMethodName(fieldName), field.getType());
-                    Method factoryMethod = factory.getClass().getMethod(fieldName, modelClass);
-                    setter.invoke(ins, factoryMethod.invoke(factory, ins));
-                } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-                    throw new PropertyManufactureException(e);
-                }
+    private final Class<?> modelClass;
+    private final Field[] modelFields;
+
+    public InstanceAssembler(Class<?> modelClass) {
+        this.modelClass = modelClass;
+        this.modelFields = modelClass.getDeclaredFields();
+    }
+
+    public void assemble(Object instance, Object factory) {
+        copyInstantFields(instance, factory);
+        copyLazyFields(instance, factory);
+    }
+
+    public void copyInstantFields(Object instance, Object factory) {
+        copyFields(instance, factory, (f) -> !f.getType().equals(Function.class));
+    }
+
+    public void copyLazyFields(Object instance, Object factory) {
+        copyFields(instance, factory, (f) -> f.getType().equals(Function.class));
+    }
+
+    private void copyFields(Object instance, Object factory, Predicate<Field> fieldCondition) {
+        List<String> factoryFields = Arrays.stream(factory.getClass().getDeclaredFields())
+                .filter(fieldCondition)
+                .map(field -> field.getName())
+                .collect(Collectors.toList());
+        Arrays.stream(modelFields)
+                .filter((field) -> factoryFields.contains(field.getName()))
+                .forEach((field) -> copyFactoryValueIfNull(instance, factory, field));
+    }
+
+    private void copyFactoryValueIfNull(Object instance, Object factory, Field field) {
+        try {
+            Method getter = getGetterMethod(modelClass, field);
+            if (getter.invoke(instance) != null) {
+                return;
             }
-            return ins;
-        }, (i1, i2) -> i1);
-        return assembled;
+
+            Method setter = getSetterMethod(modelClass, field);
+            Field factoryField = factory.getClass().getDeclaredField(field.getName());
+            if (factoryField.getType().equals(Function.class)) {
+                setter.invoke(instance, ((Function) factoryField.get(factory)).apply(instance));
+            } else {
+                setter.invoke(instance, factoryField.get(factory));
+            }
+        } catch (SecurityException | IllegalArgumentException | NoSuchFieldException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+            throw new PropertyManufactureException(e);
+        }
     }
 
-    private static String setterMethodName(String fieldName) {
-        return "set" + fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
+    private Method getGetterMethod(Class<?> clazz, Field field) throws NoSuchMethodException {
+        return clazz.getMethod(getAccessorMethodName("get", field));
     }
 
-    private static boolean hasMethod(Method[] methods, String methodName) {
-        return Arrays
-                .stream(methods)
-                .filter((method) -> method.getName().equals(methodName))
-                .findFirst()
-                .isPresent();
+    private Method getSetterMethod(Class<?> clazz, Field field) throws NoSuchMethodException {
+        return clazz.getMethod(getAccessorMethodName("set", field), field.getType());
     }
 
-    private static boolean hasMethod(Class<?> clazz, String methodName) {
-        return hasMethod(clazz.getMethods(), methodName);
-    }
-
-    private static boolean hasMethod(Object object, String methodName) {
-        return hasMethod(object.getClass(), methodName);
+    private String getAccessorMethodName(String accessorType, Field field) throws NoSuchMethodException {
+        String fieldName = field.getName();
+        return accessorType + fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
     }
 }

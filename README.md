@@ -38,81 +38,56 @@ public class User {
 Create factory class:
 
 ```
-@ApplicationScoped
 @Factory(User.class)
 public class UserFactory {
-    public String firstName(User user) {
-        return "John";
-    }
+    // Simple value
+    public String firstName = "John";
 
-    public String lastName(User user) {
-        return "Doe";
-    }
+    public String lastName = "Doe";
 
-    public Integer age(User user) {
-        return 18;
-    }
+    public Integer age = 18;
 
-    public Sex sex(User user) {
-        return Sex.MALE;
-    }
+    // Lazy value
+    public Function<User, Sex> sex = (user) -> user.getFirstName().equals("Jane") ? Sex.FEMALE : Sex.MALE;
 }
 ```
 
 Inject `Hairspray` instance into test class.
 
 ```
-public class UserTest {
+public class ExampleTest {
     @Inject
     private Hairspray factory;
 
-    private User user;
-
     @Test
-    public void testGetFullName() {
-        user = factory.create(User.class);
-        assertEquals(user.getName(), "John Doe");
+    public void test() {
+        User user = factory.create(User.class);
+        assertEquals(user.getFullName(), "John Doe");
+        assertEquals(user.getSex(), Sex.MALE);
+
+        // overwrite first name
+        user = factory.create(User.class, (u) -> {
+            u.setFirstName("Jane");
+        });
+        assertEquals(user.getFullName(), "Jane Doe");
+        assertEquals(user.getSex(), Sex.FEMALE);
     }
 }
 ```
 
-## Customize factory
+## Advanced factory
 
-Depends on another field:
-
-```
-@ApplicationScoped
-@Factory(User.class)
-public class UserFactory {
-
-    ...
-
-    public Sex sex(User user) {
-        if (user.getFirstName().equals("Jane")) {
-            return Sex.FEMALE;
-        } else {
-            return Sex.MALE;
-        }
-    }
-}
-```
-
-Create with another entity:
+### Create with another entity:
 
 ```
-@ApplicationScoped
 @Factory(Post.class)
 public class PostFactory {
 
     @Inject
     private EntityManager entityManager;
 
-    public User auther(Post post) {
-        if (post.getUser() == null) {
-            return entityManager.create( ... );
-        } else {
-            return post.getUser();
-        }
-    }
+    public Function<Post, User> auther = (post) -> {
+        post.getUser() == null ? entityManager.create( ... ) : post.getUser();
+    };
 }
 ```

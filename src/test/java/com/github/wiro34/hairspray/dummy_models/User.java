@@ -18,7 +18,11 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String name;
+    @Column(name = "first_name")
+    private String firstName;
+
+    @Column(name = "last_name")
+    private String lastName;
 
     @Column(name = "mail_address")
     private String mailAddress;
@@ -29,6 +33,10 @@ public class User {
 
     @Column(name = "created_at")
     private Timestamp createdAt;
+
+    public String getFullName() {
+        return firstName + " " + lastName;
+    }
 
     public static enum Sex {
         MALE, FEMALE

@@ -1,12 +1,10 @@
 package com.github.wiro34.hairspray;
 
-import static com.github.wiro34.hairspray.InstanceAssembler.assemble;
 import com.github.wiro34.hairspray.exception.RuntimeInstantiationException;
 import com.github.wiro34.hairspray.factory_loader.ManagedBeanFactoryProvider;
 import com.github.wiro34.hairspray.factory_loader.FactoryProvider;
 import com.github.wiro34.hairspray.factory_loader.PojoFactoryProvider;
 import java.util.function.Consumer;
-import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -17,8 +15,6 @@ import javax.transaction.Transactional;
 @Named
 @ApplicationScoped
 public class Hairspray implements FixtureFactory {
-
-    private static final Logger LOGGER = Logger.getLogger(Hairspray.class.getName());
 
     @Inject
     private EntityManager entityManager;
@@ -36,12 +32,13 @@ public class Hairspray implements FixtureFactory {
     @Override
     public <T> T build(Class<T> clazz, Consumer<T> initializer) {
         try {
+            final InstanceAssembler assembler = new InstanceAssembler(clazz);
             final T instance = clazz.newInstance();
             return factoryProvider.findFactoryFor(clazz)
                     .map(f -> {
-                        T assembled = assemble(instance, f);
-                        initializer.accept(assembled);
-                        return assembled;
+                        initializer.accept(instance);
+                        assembler.assemble(instance, f);
+                        return instance;
                     })
                     .orElseThrow(() -> new RuntimeInstantiationException("Factory of " + clazz.getSimpleName() + " is not found"));
         } catch (InstantiationException | IllegalAccessException e) {

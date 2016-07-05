@@ -3,28 +3,20 @@ package com.github.wiro34.hairspray.dummy_models;
 import com.github.wiro34.hairspray.annotation.Factory;
 import com.github.wiro34.hairspray.dummy_models.User.Sex;
 import java.sql.Timestamp;
+import java.util.function.Function;
 
 @Factory(User.class)
 public class UserFactory {
 
-    // 名前を返すメソッド
-    public String name(User user) {
-        // 他のメソッドに依存させるパターン
-        return "John Doe (" + age(user) + ")";
-    }
+    // Simple value
+    public String firstName = "John";
 
-    // 年齢を返すメソッド
-    public Integer age(User user) {
-        return 18;
-    }
+    public String lastName = "Doe";
 
-    // 性別を返すメソッド
-    public Sex sex(User user) {
-        return Sex.MALE;
-    }
+    public Integer age = 18;
 
-    // 生成日時を返すメソッド
-    public Timestamp createdAt(User user) {
-        return new Timestamp(System.currentTimeMillis());
-    }
+    // Lazy value
+    public Function<User, Sex> sex = (user) -> user.getFirstName().equals("Jane") ? Sex.FEMALE : Sex.MALE;
+
+    public Function<User, Timestamp> createdAt = (user) -> new Timestamp(System.currentTimeMillis());
 }
