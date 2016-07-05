@@ -1,11 +1,11 @@
 package com.github.wiro34.hairspray;
 
 import com.github.wiro34.hairspray.dummy_models.Post;
-import com.github.wiro34.hairspray.dummy_models.PostRepository;
 import com.github.wiro34.hairspray.dummy_models.User;
 import com.github.wiro34.hairspray.dummy_models.User.Sex;
-import com.github.wiro34.hairspray.dummy_models.UserRepository;
+import java.math.BigInteger;
 import javax.inject.Inject;
+import javax.persistence.EntityManager;
 import static org.testng.AssertJUnit.*;
 import org.testng.annotations.Test;
 
@@ -15,38 +15,34 @@ public class HairsprayTest extends AbstractCdiTest {
     private Hairspray factory;
 
     @Inject
-    private UserRepository userRepository;
+    private EntityManager entityManager;
 
-    @Inject
-    private PostRepository postRepository;
+    private int count(String tableName) {
+        return ((BigInteger) entityManager.createNativeQuery("select count(1) from " + tableName).getSingleResult()).intValue();
+    }
 
     @Test
-    public void testBuild() throws Exception {
-        int count = userRepository.all().size();
-        User user = factory.build(User.class, (u) -> {
-            u.setFirstName("Jane");
-        });
+    public void testBuild() {
+        int count = count("user");
+        User user = factory.build(User.class);
         assertNotNull(user);
-        assertEquals(userRepository.all().size(), count);
-        
-        user = factory.create(User.class);
-        assertEquals(user.getFullName(), "John Doe");
-        assertEquals(user.getSex(), Sex.MALE);
+        assertEquals(count("user"), count);
+    }
 
-        // overwrite first name
-        user = factory.create(User.class, (u) -> {
+    @Test
+    public void testBuildWithInitializer() {
+        User user = factory.create(User.class, (u) -> {
             u.setFirstName("Jane");
         });
         assertEquals(user.getFullName(), "Jane Doe");
         assertEquals(user.getSex(), Sex.FEMALE);
     }
-    
 
     @Test
-    public void testCreate() throws Exception {
-        int count = postRepository.all().size();
+    public void testCreate() {
+        int count = count("post");
         Post post = factory.create(Post.class);
         assertNotNull(post);
-        assertEquals(postRepository.all().size(), count + 1);
+        assertEquals(count("post"), count + 1);
     }
 }

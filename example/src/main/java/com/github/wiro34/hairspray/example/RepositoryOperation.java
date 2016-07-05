@@ -1,4 +1,4 @@
-package com.github.wiro34.hairspray.dummy_models;
+package com.github.wiro34.hairspray.example;
 
 import java.util.List;
 import java.util.Optional;

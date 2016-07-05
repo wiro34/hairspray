@@ -14,7 +14,7 @@ import javax.inject.Named;
 @ApplicationScoped
 public class ManagedBeanFactoryProvider implements FactoryProvider {
     @Inject
-    private FactoryLoadingExtension extension;  // NOTE: don't remove this
+    private FactoryLoadingExtension extension;  // force load extension
 
     @Inject
     private BeanManager beanManager;

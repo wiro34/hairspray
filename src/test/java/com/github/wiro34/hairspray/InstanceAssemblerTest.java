@@ -3,9 +3,9 @@ package com.github.wiro34.hairspray;
 import com.github.wiro34.hairspray.dummy_models.User;
 import com.github.wiro34.hairspray.dummy_models.User.Sex;
 import com.github.wiro34.hairspray.dummy_models.UserFactory;
+import org.testng.annotations.Test;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNull;
-import org.testng.annotations.Test;
 
 public class InstanceAssemblerTest {
 

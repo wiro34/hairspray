@@ -1,5 +1,6 @@
-package com.github.wiro34.hairspray.dummy_models;
+package com.github.wiro34.hairspray.example;
 
+import java.io.Serializable;
 import java.sql.Timestamp;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -13,14 +14,16 @@ import lombok.Data;
 @Data
 @Entity
 @Table(name = "post")
-public class Post {
+public class Post implements Serializable {
+
+    private static final long serialVersionUID = -2416931054370048135L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
-    private User user;
+    private User auther;
 
     private String subject;
 

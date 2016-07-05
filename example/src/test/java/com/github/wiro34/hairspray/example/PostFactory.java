@@ -1,9 +1,10 @@
-package com.github.wiro34.hairspray.dummy_models;
+package com.github.wiro34.hairspray.example;
 
 import com.github.wiro34.hairspray.Hairspray;
 import com.github.wiro34.hairspray.annotation.Factory;
 import java.sql.Timestamp;
 import java.util.Calendar;
+import java.util.Optional;
 import java.util.function.Function;
 import javax.inject.Inject;
 
@@ -13,8 +14,12 @@ public class PostFactory {
     @Inject
     private Hairspray factory;
 
-    public Function<Post, User> user = (post) -> {
-        return factory.create(User.class);
+    @Inject
+    private UserRepository userRepository;
+
+    public Function<Post, User> auther = (post) -> {
+        Optional<User> userOption = userRepository.find(1L);
+        return userOption.orElse(factory.create(User.class));
     };
 
     public String subject = "Example post";

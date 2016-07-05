@@ -4,7 +4,6 @@ import com.github.wiro34.hairspray.AbstractCdiTest;
 import com.github.wiro34.hairspray.Hairspray;
 import com.github.wiro34.hairspray.dummy_models.User;
 import com.github.wiro34.hairspray.dummy_models.UserFactory;
-import com.github.wiro34.hairspray.dummy_models.UserRepository;
 import com.github.wiro34.hairspray.exception.RuntimeInstantiationException;
 import javax.inject.Inject;
 import static org.testng.AssertJUnit.*;
@@ -15,9 +14,6 @@ public class ManagedBeanFactoryProviderTest extends AbstractCdiTest {
     private Hairspray factorsy;
     
     @Inject
-    private UserRepository userRepository;
-
-    @Inject
     private ManagedBeanFactoryProvider factoryLoader;
 
     @Test
@@ -25,7 +21,6 @@ public class ManagedBeanFactoryProviderTest extends AbstractCdiTest {
         UserFactory factory = factoryLoader.getFactoryInstance(UserFactory.class);
         User user = new User();
         assertNotNull(factory);
-//        assertEquals(factory.name(user), "John Doe (18)");
     }
 
     @Test(expectedExceptions = RuntimeInstantiationException.class)

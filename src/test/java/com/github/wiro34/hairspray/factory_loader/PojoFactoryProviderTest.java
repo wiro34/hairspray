@@ -20,7 +20,6 @@ public class PojoFactoryProviderTest {
     @Test
     public void testGetFactoryInstance() throws Exception {
         assertNotNull(factory);
-//        assertEquals((int) factory.age(null), 18);
     }
 
     @Test(expectedExceptions = RuntimeInstantiationException.class)
