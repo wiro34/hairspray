@@ -4,7 +4,7 @@ import com.github.wiro34.hairspray.exception.RuntimeInstantiationException;
 import com.github.wiro34.hairspray.factory_loader.ManagedBeanFactoryProvider;
 import com.github.wiro34.hairspray.factory_loader.FactoryProvider;
 import com.github.wiro34.hairspray.factory_loader.PojoFactoryProvider;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -14,7 +14,7 @@ import javax.transaction.Transactional;
 
 @Named
 @ApplicationScoped
-public class Hairspray implements FixtureFactory {
+public class Hairspray extends FixtureFactory {
 
     @Inject
     private EntityManager entityManager;
@@ -30,13 +30,13 @@ public class Hairspray implements FixtureFactory {
     }
 
     @Override
-    public <T> T build(Class<T> clazz, Consumer<T> initializer) {
+    public <T> T build(Class<T> clazz, BiConsumer<T, Integer> initializer, int index) {
         try {
             final InstanceAssembler assembler = new InstanceAssembler(clazz);
             final T instance = clazz.newInstance();
             return factoryProvider.findFactoryFor(clazz)
                     .map(f -> {
-                        initializer.accept(instance);
+                        initializer.accept(instance, index);
                         assembler.assemble(instance, f);
                         return instance;
                     })
@@ -48,8 +48,8 @@ public class Hairspray implements FixtureFactory {
 
     @Override
     @Transactional
-    public <T> T create(Class<T> clazz, Consumer<T> initializer) {
-        final T instance = build(clazz, initializer);
+    public <T> T create(Class<T> clazz, BiConsumer<T, Integer> initializer, int index) {
+        final T instance = build(clazz, initializer, index);
         try {
             entityManager.persist(instance);
         } catch (Exception e) {

@@ -4,6 +4,7 @@ import com.github.wiro34.hairspray.dummy_models.Post;
 import com.github.wiro34.hairspray.dummy_models.User;
 import com.github.wiro34.hairspray.dummy_models.User.Sex;
 import java.math.BigInteger;
+import java.util.List;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import static org.testng.AssertJUnit.*;
@@ -36,6 +37,18 @@ public class HairsprayTest extends AbstractCdiTest {
         });
         assertEquals(user.getFullName(), "Jane Doe");
         assertEquals(user.getSex(), Sex.FEMALE);
+    }
+
+    @Test
+    public void testBuildListWithInitializer() {
+        List<User> users = factory.createList(User.class, 3, (u, n) -> {
+            u.setFirstName("Agent");
+            u.setLastName("Smith #" + (n + 1));
+        });
+        assertEquals(users.size(), 3);
+        assertEquals(users.get(0).getFullName(), "Agent Smith #1");
+        assertEquals(users.get(1).getFullName(), "Agent Smith #2");
+        assertEquals(users.get(2).getFullName(), "Agent Smith #3");
     }
 
     @Test
