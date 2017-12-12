@@ -1,10 +1,12 @@
 package com.github.wiro34.hairspray.factory_loader;
 
 import com.github.wiro34.hairspray.exception.RuntimeInstantiationException;
+
 import java.util.Optional;
 import java.util.Set;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.spi.CreationalContext;
+import javax.enterprise.inject.Produces;
 import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.inject.Inject;
@@ -26,5 +28,10 @@ public class ManagedBeanFactoryProvider implements FactoryProvider {
             CreationalContext<T> cc = beanManager.createCreationalContext(bean);
             return bean.create(cc);
         }).orElseThrow(() -> new RuntimeInstantiationException("Failed to instantiate factory: " + factoryClass.getSimpleName()));
+    }
+
+    @Produces
+    public FactoryLoadingExtension getExtension() {
+        return new FactoryLoadingExtension();
     }
 }

@@ -1,7 +1,7 @@
 Hairspray
 =========
 
-Hairspray is a fixture library for testing like factory_girl.
+Hairspray is a fixture library for testing like ~~factory_girl~~ factory_bot.
 The library can creating fixtures easily.
 
 ## Usage
@@ -77,4 +77,4 @@ public class ExampleTest {
 
 ## and more
 
-see [example](example)
+see [https://github.com/wiro34/hairspray-example](hairspray-example)
