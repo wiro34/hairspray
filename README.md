@@ -12,7 +12,7 @@ Add dependency to pom.xml:
 <dependency>
     <groupId>com.github.wiro34</groupId>
     <artifactId>hairspray</artifactId>
-    <version>0.1.0-SNAPSHOT</version>
+    <version>0.1.0</version>
 </dependency>
 ```
 
@@ -31,7 +31,7 @@ public class EntityManagerProducer {
 
 Create a model class (for example):
 
-```
+```java
 @Entity
 public class User {
     @Id
@@ -60,7 +60,7 @@ public class User {
 
 Create factory class:
 
-```
+```java
 @Factory(User.class)
 public class UserFactory {
     // Simple value
@@ -77,7 +77,7 @@ public class UserFactory {
 
 Inject `Hairspray` instance into test class.
 
-```
+```java
 public class ExampleTest {
     @Inject
     private Hairspray factory;
@@ -100,9 +100,9 @@ public class ExampleTest {
 
 ## and more
 
-see [https://github.com/wiro34/hairspray-example](hairspray-example)
+see [hairspray-example](https://github.com/wiro34/hairspray-example)
 
 ## TODO
 
-[] Sequence Number Generator
-[] Association Support
+- [ ] Sequence Number Generator
+- [ ] Association Support
