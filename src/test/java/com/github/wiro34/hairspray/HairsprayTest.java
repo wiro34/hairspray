@@ -1,16 +1,21 @@
 package com.github.wiro34.hairspray;
 
+import com.github.wiro34.hairspray.arquillian.ArquillianTest;
 import com.github.wiro34.hairspray.dummy_models.Post;
 import com.github.wiro34.hairspray.dummy_models.User;
 import com.github.wiro34.hairspray.dummy_models.User.Sex;
-import java.math.BigInteger;
-import java.util.List;
-import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import static org.testng.AssertJUnit.*;
 import org.testng.annotations.Test;
 
-public class HairsprayTest extends AbstractCdiTest {
+import javax.inject.Inject;
+import javax.persistence.EntityManager;
+import javax.transaction.Transactional;
+import java.math.BigInteger;
+import java.util.List;
+
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+
+public class HairsprayTest extends ArquillianTest {
 
     @Inject
     private Hairspray factory;

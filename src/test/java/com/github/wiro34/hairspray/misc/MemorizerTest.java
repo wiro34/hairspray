@@ -6,7 +6,7 @@ import static org.testng.AssertJUnit.*;
 
 public class MemorizerTest {
 
-    private final Memorizer<Integer> mem = new Memorizer<>(() -> generateRandomNumber());
+    private final Memorizer<Integer> mem = new Memorizer<>(this::generateRandomNumber);
 
     private int generateRandomNumber() {
         return new Random().nextInt();

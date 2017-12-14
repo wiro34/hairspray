@@ -1,18 +1,20 @@
 package com.github.wiro34.hairspray.factory_loader;
 
-import com.github.wiro34.hairspray.AbstractCdiTest;
 import com.github.wiro34.hairspray.Hairspray;
+import com.github.wiro34.hairspray.arquillian.ArquillianTest;
 import com.github.wiro34.hairspray.dummy_models.User;
 import com.github.wiro34.hairspray.dummy_models.UserFactory;
 import com.github.wiro34.hairspray.exception.RuntimeInstantiationException;
-import javax.inject.Inject;
-import static org.testng.AssertJUnit.*;
 import org.testng.annotations.Test;
 
-public class ManagedBeanFactoryProviderTest extends AbstractCdiTest {
+import javax.inject.Inject;
+
+import static org.testng.AssertJUnit.assertNotNull;
+
+public class ManagedBeanFactoryProviderTest extends ArquillianTest {
     @Inject
     private Hairspray factorsy;
-    
+
     @Inject
     private ManagedBeanFactoryProvider factoryLoader;
 

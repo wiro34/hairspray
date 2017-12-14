@@ -1,10 +1,33 @@
 Hairspray
 =========
 
-Hairspray is a fixture library for testing like factory_girl.
+Hairspray is a fixture library for testing like ~~factory_girl~~ factory_bot.
 The library can creating fixtures easily.
 
 ## Usage
+
+Add dependency to pom.xml:
+
+```xml
+<dependency>
+    <groupId>com.github.wiro34</groupId>
+    <artifactId>hairspray</artifactId>
+    <version>0.1.0-SNAPSHOT</version>
+</dependency>
+```
+
+## Getting Start
+
+Create an EntityManager producer in test source:
+
+```java
+@ApplicationScoped
+public class EntityManagerProducer {
+    @Produces
+    @PersistenceContext(unitName = "your persistence unit name")
+    private EntityManager entityManager;
+}
+```
 
 Create a model class (for example):
 
@@ -77,4 +100,9 @@ public class ExampleTest {
 
 ## and more
 
-see [example](example)
+see [https://github.com/wiro34/hairspray-example](hairspray-example)
+
+## TODO
+
+[] Sequence Number Generator
+[] Association Support

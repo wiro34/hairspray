@@ -1,6 +1,7 @@
 package com.github.wiro34.hairspray;
 
 import com.github.wiro34.hairspray.annotation.Factory;
+
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -16,14 +17,13 @@ public abstract class FixtureFactory {
 
     /**
      * 指定したクラスのインスタンスを生成します。
-     *
+     * <p>
      * 生成されたインスタンスは指定されたクラスのファクトリによって初期化されます。 詳しくは {
      *
-     * @see Factory} の JavaDoc を参照してください。
-     *
-     * @param <T> 生成するクラス
+     * @param <T>   生成するクラス
      * @param clazz 生成するクラス
      * @return 生成されたインスタンス
+     * @see Factory} の JavaDoc を参照してください。
      * @see Factory
      */
     public <T> T build(Class<T> clazz) {
@@ -32,17 +32,16 @@ public abstract class FixtureFactory {
 
     /**
      * 指定したクラスのインスタンスを生成します。
-     *
+     * <p>
      * 生成されたインスタンスは指定されたクラスのファクトリによって初期化されます。 詳しくは {
      *
-     * @see Factory} の JavaDoc を参照してください。
-     *
-     * インスタンスが生成された後、さらに initializer によって再初期化を行います。
-     *
-     * @param <T> 生成するクラス
-     * @param clazz 生成するクラス
+     * @param <T>         生成するクラス
+     * @param clazz       生成するクラス
      * @param initializer 再初期化処理
      * @return 生成されたインスタンス
+     * @see Factory} の JavaDoc を参照してください。
+     * <p>
+     * インスタンスが生成された後、さらに initializer によって再初期化を行います。
      * @see Factory
      */
     public <T> T build(Class<T> clazz, Consumer<T> initializer) {
@@ -51,15 +50,14 @@ public abstract class FixtureFactory {
 
     /**
      * 指定したクラスのインスタンスを指定された数だけ生成します。
-     *
+     * <p>
      * 生成されたインスタンスは指定されたクラスのファクトリによって初期化されます。 詳しくは {
      *
-     * @see Factory} の JavaDoc を参照してください。
-     *
-     * @param <T> 生成するクラス
+     * @param <T>   生成するクラス
      * @param clazz 生成するクラス
-     * @param size 生成するインスタンスの数
+     * @param size  生成するインスタンスの数
      * @return 生成されたインスタンスのリスト
+     * @see Factory} の JavaDoc を参照してください。
      * @see Factory
      */
     public <T> List<T> buildList(Class<T> clazz, int size) {
@@ -68,18 +66,17 @@ public abstract class FixtureFactory {
 
     /**
      * 指定したクラスのインスタンスを指定された数だけ生成します。
-     *
+     * <p>
      * 生成されたインスタンスは指定されたクラスのファクトリによって初期化されます。 詳しくは {
      *
-     * @see Factory} の JavaDoc を参照してください。
-     *
-     * インスタンスが生成された後、さらに initializer によって再初期化を行います。
-     *
-     * @param <T> 生成するクラス
-     * @param clazz 生成するクラス
-     * @param size 生成するインスタンスの数
+     * @param <T>         生成するクラス
+     * @param clazz       生成するクラス
+     * @param size        生成するインスタンスの数
      * @param initializer 再初期化処理
      * @return 生成されたインスタンスのリスト
+     * @see Factory} の JavaDoc を参照してください。
+     * <p>
+     * インスタンスが生成された後、さらに initializer によって再初期化を行います。
      * @see Factory
      */
     public <T> List<T> buildList(Class<T> clazz, int size, Consumer<T> initializer) {
@@ -91,19 +88,18 @@ public abstract class FixtureFactory {
 
     /**
      * 指定したクラスのインスタンスを指定された数だけ生成します。
-     *
+     * <p>
      * 生成されたインスタンスは指定されたクラスのファクトリによって初期化されます。 詳しくは {
      *
-     * @see Factory} の JavaDoc を参照してください。
-     *
-     * インスタンスが生成された後、さらに initializer によって再初期化を行います。 initializer
-     * には生成されたインスタンスと要素番号が渡されます。
-     *
-     * @param <T> 生成するクラス
-     * @param clazz 生成するクラス
-     * @param size 生成するインスタンスの数
+     * @param <T>         生成するクラス
+     * @param clazz       生成するクラス
+     * @param size        生成するインスタンスの数
      * @param initializer 再初期化処理
      * @return 生成されたインスタンスのリスト
+     * @see Factory} の JavaDoc を参照してください。
+     * <p>
+     * インスタンスが生成された後、さらに initializer によって再初期化を行います。 initializer
+     * には生成されたインスタンスと要素番号が渡されます。
      * @see Factory
      */
     public <T> List<T> buildList(Class<T> clazz, int size, BiConsumer<T, Integer> initializer) {
@@ -114,17 +110,16 @@ public abstract class FixtureFactory {
 
     /**
      * 指定したクラスのインスタンスを生成し、永続化します。
-     *
+     * <p>
      * 生成されたインスタンスは指定されたクラスのファクトリによって初期化されます。 詳しくは {
      *
-     * @see Factory} の JavaDoc を参照してください。
-     *
-     * インスタンスが生成された後、さらに initializer によって再初期化を行います。
-     *
-     * @param <T> 生成するクラス
-     * @param clazz 生成するクラス
+     * @param <T>         生成するクラス
+     * @param clazz       生成するクラス
      * @param initializer 再初期化処理
      * @return 生成されたインスタンスのリスト
+     * @see Factory} の JavaDoc を参照してください。
+     * <p>
+     * インスタンスが生成された後、さらに initializer によって再初期化を行います。
      * @see Factory
      */
     public <T> T create(Class<T> clazz, Consumer<T> initializer) {
@@ -133,14 +128,13 @@ public abstract class FixtureFactory {
 
     /**
      * 指定したクラスのインスタンスを生成し、永続化します。
-     *
+     * <p>
      * 生成されたインスタンスは指定されたクラスのファクトリによって初期化されます。 詳しくは {
      *
-     * @see Factory} の JavaDoc を参照してください。
-     *
-     * @param <T> 生成するクラス
+     * @param <T>   生成するクラス
      * @param clazz 生成するクラス
      * @return 生成されたインスタンスのリスト
+     * @see Factory} の JavaDoc を参照してください。
      * @see Factory
      */
     public <T> T create(Class<T> clazz) {
@@ -149,15 +143,14 @@ public abstract class FixtureFactory {
 
     /**
      * 指定したクラスのインスタンスを生成し、永続化します。
-     *
+     * <p>
      * 生成されたインスタンスは指定されたクラスのファクトリによって初期化されます。 詳しくは {
      *
-     * @see Factory} の JavaDoc を参照してください。
-     *
-     * @param <T> 生成するクラス
+     * @param <T>   生成するクラス
      * @param clazz 生成するクラス
-     * @param size 生成するインスタンスの数
+     * @param size  生成するインスタンスの数
      * @return 生成されたインスタンスのリスト
+     * @see Factory} の JavaDoc を参照してください。
      * @see Factory
      */
     public <T> List<T> createList(Class<T> clazz, int size) {
@@ -166,18 +159,17 @@ public abstract class FixtureFactory {
 
     /**
      * 指定したクラスのインスタンスを生成し、永続化します。
-     *
+     * <p>
      * 生成されたインスタンスは指定されたクラスのファクトリによって初期化されます。 詳しくは {
      *
-     * @see Factory} の JavaDoc を参照してください。
-     *
-     * インスタンスが生成された後、さらに initializer によって再初期化を行い、 その後永続化します。
-     *
-     * @param <T> 生成するクラス
-     * @param clazz 生成するクラス
-     * @param size 生成するインスタンスの数
+     * @param <T>         生成するクラス
+     * @param clazz       生成するクラス
+     * @param size        生成するインスタンスの数
      * @param initializer 再初期化処理
      * @return 生成されたインスタンスのリスト
+     * @see Factory} の JavaDoc を参照してください。
+     * <p>
+     * インスタンスが生成された後、さらに initializer によって再初期化を行い、 その後永続化します。
      * @see Factory
      */
     public <T> List<T> createList(Class<T> clazz, int size, Consumer<T> initializer) {
@@ -189,19 +181,18 @@ public abstract class FixtureFactory {
 
     /**
      * 指定したクラスのインスタンスを生成し、永続化します。
-     *
+     * <p>
      * 生成されたインスタンスは指定されたクラスのファクトリによって初期化されます。 詳しくは {
      *
-     * @see Factory} の JavaDoc を参照してください。
-     *
-     * インスタンスが生成された後、さらに initializer によって再初期化を行い、 その後永続化します。 initializer
-     * には生成されたインスタンスと要素番号が渡されます。
-     *
-     * @param <T> 生成するクラス
-     * @param clazz 生成するクラス
-     * @param size 生成するインスタンスの数
+     * @param <T>         生成するクラス
+     * @param clazz       生成するクラス
+     * @param size        生成するインスタンスの数
      * @param initializer 再初期化処理
      * @return 生成されたインスタンスのリスト
+     * @see Factory} の JavaDoc を参照してください。
+     * <p>
+     * インスタンスが生成された後、さらに initializer によって再初期化を行い、 その後永続化します。 initializer
+     * には生成されたインスタンスと要素番号が渡されます。
      * @see Factory
      */
     public <T> List<T> createList(Class<T> clazz, int size, BiConsumer<T, Integer> initializer) {
