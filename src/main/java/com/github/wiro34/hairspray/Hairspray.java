@@ -33,8 +33,9 @@ public class Hairspray extends FixtureFactory {
             final T instance = clazz.newInstance();
             return factoryProvider.findFactoryFor(clazz)
                     .map(f -> {
+                        assembler.assembleInstantFields(instance, f);
                         initializer.accept(instance, index);
-                        assembler.assemble(instance, f);
+                        assembler.assembleLazyFields(instance, f);
                         return instance;
                     })
                     .orElseThrow(() -> new RuntimeInstantiationException("Factory is undefined: class=" + clazz.getSimpleName()));

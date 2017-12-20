@@ -1,6 +1,7 @@
 package com.github.wiro34.hairspray;
 
 import com.github.wiro34.hairspray.exception.PropertyManufactureException;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -15,21 +16,16 @@ class InstanceAssembler {
     private final Class<?> modelClass;
     private final Field[] modelFields;
 
-    public InstanceAssembler(Class<?> modelClass) {
+    InstanceAssembler(Class<?> modelClass) {
         this.modelClass = modelClass;
         this.modelFields = modelClass.getDeclaredFields();
     }
 
-    public void assemble(Object instance, Object factory) {
-        copyInstantFields(instance, factory);
-        copyLazyFields(instance, factory);
-    }
-
-    public void copyInstantFields(Object instance, Object factory) {
+    void assembleInstantFields(Object instance, Object factory) {
         copyFields(instance, factory, (f) -> !f.getType().equals(Function.class));
     }
 
-    public void copyLazyFields(Object instance, Object factory) {
+    void assembleLazyFields(Object instance, Object factory) {
         copyFields(instance, factory, (f) -> f.getType().equals(Function.class));
     }
 
