@@ -32,20 +32,16 @@ class InstanceAssembler {
     private void copyFields(Object instance, Object factory, Predicate<Field> fieldCondition) {
         List<String> factoryFields = Arrays.stream(factory.getClass().getDeclaredFields())
                 .filter(fieldCondition)
-                .map(field -> field.getName())
+                .map(Field::getName)
                 .collect(Collectors.toList());
         Arrays.stream(modelFields)
                 .filter((field) -> factoryFields.contains(field.getName()))
-                .forEach((field) -> copyFactoryValueIfNull(instance, factory, field));
+                .forEach((field) -> copyFactoryValue(instance, factory, field));
     }
 
-    private void copyFactoryValueIfNull(Object instance, Object factory, Field field) {
+    @SuppressWarnings("unchecked")
+    private void copyFactoryValue(Object instance, Object factory, Field field) {
         try {
-            Method getter = getGetterMethod(modelClass, field);
-            if (getter.invoke(instance) != null) {
-                return;
-            }
-
             Method setter = getSetterMethod(modelClass, field);
             Field factoryField = factory.getClass().getDeclaredField(field.getName());
             if (factoryField.getType().equals(Function.class)) {
@@ -56,10 +52,6 @@ class InstanceAssembler {
         } catch (SecurityException | IllegalArgumentException | NoSuchFieldException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
             throw new PropertyManufactureException(e);
         }
-    }
-
-    private Method getGetterMethod(Class<?> clazz, Field field) throws NoSuchMethodException {
-        return clazz.getMethod(getAccessorMethodName("get", field));
     }
 
     private Method getSetterMethod(Class<?> clazz, Field field) throws NoSuchMethodException {

@@ -15,6 +15,8 @@ public class UserFactory {
 
     public Integer age = 18;
 
+    public boolean active = true;
+
     // Lazy value
     public Function<User, Sex> sex = (user) -> user.getFirstName().equals("Jane") ? Sex.FEMALE : Sex.MALE;
 

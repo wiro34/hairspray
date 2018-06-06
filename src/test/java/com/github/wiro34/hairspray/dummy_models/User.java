@@ -31,6 +31,8 @@ public class User {
 
     private Sex sex;
 
+    private boolean active;
+
     @Column(name = "created_at")
     private Timestamp createdAt;
 

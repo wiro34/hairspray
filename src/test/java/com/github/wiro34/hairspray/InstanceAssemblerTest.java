@@ -5,8 +5,9 @@ import com.github.wiro34.hairspray.dummy_models.User.Sex;
 import com.github.wiro34.hairspray.dummy_models.UserFactory;
 import org.testng.annotations.Test;
 
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertNull;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNull;
+import static org.testng.Assert.assertTrue;
 
 public class InstanceAssemblerTest {
 
@@ -25,6 +26,7 @@ public class InstanceAssemblerTest {
         assertEquals(user.getMailAddress(), null);
         assertEquals((int) user.getAge(), 18);
         assertNull(user.getSex());
+        assertTrue(user.isActive());
     }
 
     @Test
@@ -44,12 +46,12 @@ public class InstanceAssemblerTest {
     }
 
     @Test
-    public void assemble_doNotUpdateIfAlreadySet() {
+    public void assemble_updateWithoutDefaultValue() {
         User user = new User();
         user.setFirstName("Jane");
         user.setSex(Sex.MALE);
         assembler.assembleLazyFields(user, factory);
         assertEquals(user.getFirstName(), "Jane");
-        assertEquals(user.getSex(), Sex.MALE);
+        assertEquals(user.getSex(), Sex.FEMALE);
     }
 }
