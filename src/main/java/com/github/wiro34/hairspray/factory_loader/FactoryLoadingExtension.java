@@ -3,10 +3,7 @@ package com.github.wiro34.hairspray.factory_loader;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.enterprise.inject.spi.*;
-import javax.inject.Inject;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.BinaryOperator;
 import java.util.stream.Collectors;
@@ -33,7 +30,7 @@ public class FactoryLoadingExtension implements Extension {
                 .reduce(new ArrayList<>(),
                         (classes, factoryClass) -> {
                             classes.add(factoryClass);
-                            classes.addAll(injectableFields(factoryClass));
+                            // classes.addAll(injectableFields(factoryClass));
                             return classes;
                         }, (BinaryOperator<List<Class<?>>>) (left, right) -> {
                             left.addAll(right);
@@ -45,12 +42,14 @@ public class FactoryLoadingExtension implements Extension {
 
     }
 
+    /*
     private List<Class<?>> injectableFields(Class<?> factoryClass) {
         return Arrays.stream(factoryClass.getDeclaredFields())
                 .filter(field -> field.isAnnotationPresent(Inject.class))
                 .map(Field::getType)
                 .collect(Collectors.toList());
     }
+    */
 
     private static <T> Bean<T> createBean(BeanManager bm, Class<T> clazz) {
         AnnotatedType<T> at = bm.createAnnotatedType(clazz);
