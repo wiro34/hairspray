@@ -10,15 +10,14 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 class InstanceAssembler {
 
     private final Class<?> modelClass;
-    private final Field[] modelFields;
 
     InstanceAssembler(Class<?> modelClass) {
         this.modelClass = modelClass;
-        this.modelFields = modelClass.getDeclaredFields();
     }
 
     void assembleInstantFields(Object instance, Object factory) {
@@ -30,11 +29,11 @@ class InstanceAssembler {
     }
 
     private void copyFields(Object instance, Object factory, Predicate<Field> fieldCondition) {
-        List<String> factoryFields = Arrays.stream(factory.getClass().getDeclaredFields())
+        List<String> factoryFields = getDeclaredFieldsExcludingSynthetics(factory.getClass())
                 .filter(fieldCondition)
                 .map(Field::getName)
                 .collect(Collectors.toList());
-        Arrays.stream(modelFields)
+        getDeclaredFieldsExcludingSynthetics(modelClass)
                 .filter((field) -> factoryFields.contains(field.getName()))
                 .forEach((field) -> copyFactoryValue(instance, factory, field));
     }
@@ -61,5 +60,10 @@ class InstanceAssembler {
     private String getAccessorMethodName(String accessorType, Field field) throws NoSuchMethodException {
         String fieldName = field.getName();
         return accessorType + fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
+    }
+
+    private Stream<Field> getDeclaredFieldsExcludingSynthetics(Class<?> clazz) {
+        return Arrays.stream(clazz.getDeclaredFields())
+                .filter(field -> !field.isSynthetic());
     }
 }
