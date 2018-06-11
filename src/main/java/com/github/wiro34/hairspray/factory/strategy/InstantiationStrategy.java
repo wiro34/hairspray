@@ -21,36 +21,32 @@ public abstract class InstantiationStrategy {
 
     public <T> T getInstance(Class<T> clazz, BiConsumer<T, Integer> initializer, int index) {
         try {
-            final T instance = this.newInstance(clazz);
-            final Object factory = factoryLoader.getFactoryFor(clazz)
-                    .map(factoryClass -> factoryBuilder.get().getFactoryInstance(factoryClass))
-                    .orElseThrow(() -> new RuntimeInstantiationException("Factory is not defined: class=" + clazz.getSimpleName()));
+            final T instance = clazz.newInstance();
+            final Object factory = getFactoryFor(clazz);
             final InstanceAssembler assembler = new InstanceAssembler(clazz, factory);
-
-            this.beforeAssemble(instance);
-            this.assemble(instance, assembler, initializer, index);
-            this.afterAssemble(instance);
+            this.beforeAssemble(instance, assembler);
+            assembler.assembleInstantFields(instance);
+            assembler.assembleDynamicFields(instance);
+            if (initializer != null) {
+                initializer.accept(instance, index);
+            }
+            this.afterAssemble(instance, assembler);
+            assembler.assembleLazyFields(instance);
             return instance;
         } catch (InstantiationException | IllegalAccessException e) {
             throw new RuntimeInstantiationException(e);
         }
     }
 
-    private <T> T newInstance(Class<T> clazz) throws InstantiationException, IllegalAccessException {
-        return clazz.newInstance();
+    protected <T> void beforeAssemble(T instance, InstanceAssembler assembler) {
     }
 
-    private <T> void assemble(T instance, InstanceAssembler assembler, BiConsumer<T, Integer> initializer, int index) {
-        assembler.assembleInstantFields(instance);
-        if (initializer != null) {
-            initializer.accept(instance, index);
-        }
-        assembler.assembleLazyFields(instance);
+    protected <T> void afterAssemble(T instance, InstanceAssembler assembler) {
     }
 
-    protected <T> void beforeAssemble(T instance) {
-    }
-
-    protected <T> void afterAssemble(T instance) {
+    private Object getFactoryFor(Class<?> clazz) {
+        return factoryLoader.getFactoryFor(clazz)
+                .map(factoryClass -> factoryBuilder.get().getFactoryInstance(factoryClass))
+                .orElseThrow(() -> new RuntimeInstantiationException("Factory is not defined: class=" + clazz.getSimpleName()));
     }
 }

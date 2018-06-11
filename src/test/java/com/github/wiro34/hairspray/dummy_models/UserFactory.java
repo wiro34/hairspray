@@ -1,9 +1,14 @@
 package com.github.wiro34.hairspray.dummy_models;
 
+import com.github.wiro34.hairspray.Dynamic;
+import com.github.wiro34.hairspray.Lazy;
 import com.github.wiro34.hairspray.annotation.Factory;
 import com.github.wiro34.hairspray.dummy_models.User.Sex;
+
 import java.sql.Timestamp;
-import java.util.function.Function;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.Date;
 
 @Factory(User.class)
 public class UserFactory {
@@ -18,7 +23,10 @@ public class UserFactory {
     public boolean active = true;
 
     // Lazy value
-    public Function<User, Sex> sex = (user) -> user.getFirstName().equals("Jane") ? Sex.FEMALE : Sex.MALE;
+    public Lazy<User, Sex> sex = (user) -> user.getFirstName().equals("Jane") ? Sex.FEMALE : Sex.MALE;
 
-    public Function<User, Timestamp> createdAt = (user) -> new Timestamp(System.currentTimeMillis());
+    // Dynamic value
+    public Dynamic<User, Timestamp> createdAt = (user) -> new Timestamp(
+            Date.from(ZonedDateTime.of(2112,1,2,3,4,56,0,ZoneId.systemDefault()).toInstant()).getTime()
+    );
 }

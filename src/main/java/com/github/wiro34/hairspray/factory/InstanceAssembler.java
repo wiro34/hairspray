@@ -1,20 +1,18 @@
 package com.github.wiro34.hairspray.factory;
 
+import com.github.wiro34.hairspray.Dynamic;
+import com.github.wiro34.hairspray.Lazy;
 import com.github.wiro34.hairspray.exception.PropertyManufactureException;
-import com.github.wiro34.hairspray.factory.strategy.InstantiationStrategy;
-import com.google.common.collect.Lists;
 
-import javax.persistence.JoinColumn;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static com.github.wiro34.hairspray.misc.StreamHelper.throwingFunction;
 
 public class InstanceAssembler {
 
@@ -28,44 +26,44 @@ public class InstanceAssembler {
     }
 
     public void assembleInstantFields(Object instance) {
-        copyFields(instance, factory, (f) -> !f.getType().equals(Function.class));
+        copyFields(instance, factory, (f) -> !(isInstanceOf(f, Function.class, Dynamic.class, Lazy.class)));
+    }
+
+    public void assembleDynamicFields(Object instance) {
+        copyFields(instance, factory, (f) -> isInstanceOf(f, Function.class, Dynamic.class));
     }
 
     public void assembleLazyFields(Object instance) {
-        copyFields(instance, factory, (f) -> f.getType().equals(Function.class));
+        copyFields(instance, factory, (f) -> isInstanceOf(f, Lazy.class));
     }
 
-    void associateFields(Object instance) {
-
-    }
-
-    private void copyFields(Object instance, Object factory, Predicate<Field> fieldCondition) {
-        List<String> factoryFields = getDeclaredFieldsExcludingSynthetics(factory.getClass())
-                .filter(fieldCondition)
-                .map(Field::getName)
-                .collect(Collectors.toList());
-        getDeclaredFieldsExcludingSynthetics(modelClass)
-                .filter((field) -> factoryFields.contains(field.getName()))
-                .forEach((field) -> copyFactoryValue(instance, factory, field));
+    private void copyFields(Object instance, Object factory, Predicate<Field> condition) {
+        getDeclaredFieldsExcludingSynthetics(factory.getClass())
+                .filter(condition)
+                .filter(this::matchFields)
+                .map(throwingFunction(field -> new FieldPair(modelClass.getDeclaredField(field.getName()), field)))
+                .forEach((pair) -> {
+                    copyFactoryValue(instance, factory, pair);
+                });
     }
 
     @SuppressWarnings("unchecked")
-    private void copyFactoryValue(Object instance, Object factory, Field field) {
+    private void copyFactoryValue(Object instance, Object factory, FieldPair pair) {
         try {
-            Field factoryField = factory.getClass().getDeclaredField(field.getName());
-            if (factoryField.getType().equals(Function.class)) {
-                setInternalState(instance, field, ((Function) factoryField.get(factory)).apply(instance));
+            Field factoryField = factory.getClass().getDeclaredField(pair.modelField.getName());
+            if (isInstanceOf(factoryField, Function.class, Dynamic.class, Lazy.class)) {
+                setInternalState(instance, pair, ((Function) factoryField.get(factory)).apply(instance));
             } else {
-                setInternalState(instance, field, factoryField.get(factory));
+                setInternalState(instance, pair, factoryField.get(factory));
             }
         } catch (SecurityException | NoSuchFieldException | IllegalAccessException e) {
             throw new PropertyManufactureException(e);
         }
     }
 
-    private void setInternalState(Object instance, Field field, Object value) {
+    private void setInternalState(Object instance, FieldPair pair, Object value) {
         try {
-            Method setter = getSetterMethod(modelClass, field);
+            Method setter = getSetterMethod(modelClass, pair.modelField);
             setter.invoke(instance, value);
         } catch (InvocationTargetException | IllegalAccessException | NoSuchMethodException e) {
             throw new PropertyManufactureException(e);
@@ -84,5 +82,26 @@ public class InstanceAssembler {
     private Stream<Field> getDeclaredFieldsExcludingSynthetics(Class<?> clazz) {
         return Arrays.stream(clazz.getDeclaredFields())
                 .filter(field -> !field.isSynthetic());
+    }
+
+    private boolean isInstanceOf(Field field, Class<?>... classes) {
+        return Stream.of(classes)
+                .anyMatch(clazz -> clazz.equals(field.getType()));
+    }
+
+    private boolean matchFields(Field factoryField){
+        return Stream.of(modelClass.getDeclaredFields())
+                .anyMatch(f -> f.getName().equals(factoryField.getName()));
+    }
+
+    private static class FieldPair {
+
+        final Field modelField;
+        final Field factoryField;
+
+        FieldPair(Field modelField, Field factoryField) {
+            this.modelField = modelField;
+            this.factoryField = factoryField;
+        }
     }
 }

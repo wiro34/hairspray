@@ -5,6 +5,12 @@ import com.github.wiro34.hairspray.dummy_models.User.Sex;
 import com.github.wiro34.hairspray.dummy_models.UserFactory;
 import org.testng.annotations.Test;
 
+import java.sql.Timestamp;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.Calendar;
+import java.util.Date;
+
 import static org.testng.Assert.*;
 
 public class InstanceAssemblerTest {
@@ -26,7 +32,16 @@ public class InstanceAssemblerTest {
     }
 
     @Test
-    public void assemble() {
+    public void assembleDynamicFields() {
+        User user = new User();
+        user.setFirstName("John");
+        assembler.assembleDynamicFields(user);
+        Date date = Date.from(ZonedDateTime.of(2112, 1, 2, 3, 4, 56, 0, ZoneId.systemDefault()).toInstant());
+        assertEquals(user.getCreatedAt(), new Timestamp(date.getTime()));
+    }
+
+    @Test
+    public void assembleLazyFields() {
         User user = new User();
         user.setFirstName("John");
         assembler.assembleLazyFields(user);
@@ -34,7 +49,7 @@ public class InstanceAssemblerTest {
     }
 
     @Test
-    public void assemble_updateByLazyFunction() {
+    public void assembleLazyFields_updateByLazyFunction() {
         User user = new User();
         user.setFirstName("Jane");
         assembler.assembleLazyFields(user);
@@ -42,7 +57,7 @@ public class InstanceAssemblerTest {
     }
 
     @Test
-    public void assemble_updateWithoutDefaultValue() {
+    public void assembleLazyFields_updateWithoutDefaultValue() {
         User user = new User();
         user.setFirstName("Jane");
         user.setSex(Sex.MALE);

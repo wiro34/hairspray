@@ -1,6 +1,8 @@
 package com.github.wiro34.hairspray.dummy_models;
 
+import com.github.wiro34.hairspray.Dynamic;
 import com.github.wiro34.hairspray.Hairspray;
+import com.github.wiro34.hairspray.Lazy;
 import com.github.wiro34.hairspray.annotation.Factory;
 
 import java.sql.Timestamp;
@@ -14,7 +16,8 @@ public class PostFactory {
     @Inject
     private Hairspray factory;
 
-    public Function<Post, User> user = (post) -> factory.create(User.class);
+    // TODO: replace to association
+    public Dynamic<Post, User> user = (post) -> factory.create(User.class);
 
     public String subject = "Example post";
 

@@ -1,6 +1,7 @@
 package com.github.wiro34.hairspray.factory.strategy;
 
 import com.github.wiro34.hairspray.exception.RuntimeInstantiationException;
+import com.github.wiro34.hairspray.factory.InstanceAssembler;
 
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
@@ -13,8 +14,8 @@ public class CreateStrategy extends InstantiationStrategy {
     private EntityManager entityManager;
 
     @Override
-    public <T> void beforeAssemble(T instance) {
-        super.beforeAssemble(instance);
+    public <T> void beforeAssemble(T instance, InstanceAssembler assembler) {
+        super.beforeAssemble(instance, assembler);
 
         if (entityManager == null) {
             throw new UnsupportedOperationException("EntityManager is not provided.");
@@ -22,9 +23,8 @@ public class CreateStrategy extends InstantiationStrategy {
     }
 
     @Override
-    public <T> void afterAssemble(T instance) {
-        super.afterAssemble(instance);
-
+    public <T> void afterAssemble(T instance, InstanceAssembler assembler) {
+        super.afterAssemble(instance, assembler);
         try {
             entityManager.persist(instance);
         } catch (Exception e) {
