@@ -2,11 +2,11 @@ package com.github.wiro34.hairspray.misc;
 
 import java.util.function.Supplier;
 
-public class Memorizer< ReturnValue> {
+public class Memorized< ReturnValue> {
     private final Supplier<ReturnValue> supplier;
     private ReturnValue memorized;
 
-    public Memorizer(Supplier<ReturnValue> supplier) {
+    public Memorized(Supplier<ReturnValue> supplier) {
         this.supplier = supplier;
     }
 

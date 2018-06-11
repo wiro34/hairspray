@@ -1,31 +1,42 @@
-package com.github.wiro34.hairspray;
+package com.github.wiro34.hairspray.factory;
 
 import com.github.wiro34.hairspray.exception.PropertyManufactureException;
+import com.github.wiro34.hairspray.factory.strategy.InstantiationStrategy;
+import com.google.common.collect.Lists;
 
+import javax.persistence.JoinColumn;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-class InstanceAssembler {
+public class InstanceAssembler {
 
     private final Class<?> modelClass;
 
-    InstanceAssembler(Class<?> modelClass) {
+    private final Object factory;
+
+    public InstanceAssembler(Class<?> modelClass, Object factory) {
         this.modelClass = modelClass;
+        this.factory = factory;
     }
 
-    void assembleInstantFields(Object instance, Object factory) {
+    public void assembleInstantFields(Object instance) {
         copyFields(instance, factory, (f) -> !f.getType().equals(Function.class));
     }
 
-    void assembleLazyFields(Object instance, Object factory) {
+    public void assembleLazyFields(Object instance) {
         copyFields(instance, factory, (f) -> f.getType().equals(Function.class));
+    }
+
+    void associateFields(Object instance) {
+
     }
 
     private void copyFields(Object instance, Object factory, Predicate<Field> fieldCondition) {
@@ -41,14 +52,22 @@ class InstanceAssembler {
     @SuppressWarnings("unchecked")
     private void copyFactoryValue(Object instance, Object factory, Field field) {
         try {
-            Method setter = getSetterMethod(modelClass, field);
             Field factoryField = factory.getClass().getDeclaredField(field.getName());
             if (factoryField.getType().equals(Function.class)) {
-                setter.invoke(instance, ((Function) factoryField.get(factory)).apply(instance));
+                setInternalState(instance, field, ((Function) factoryField.get(factory)).apply(instance));
             } else {
-                setter.invoke(instance, factoryField.get(factory));
+                setInternalState(instance, field, factoryField.get(factory));
             }
-        } catch (SecurityException | IllegalArgumentException | NoSuchFieldException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+        } catch (SecurityException | NoSuchFieldException | IllegalAccessException e) {
+            throw new PropertyManufactureException(e);
+        }
+    }
+
+    private void setInternalState(Object instance, Field field, Object value) {
+        try {
+            Method setter = getSetterMethod(modelClass, field);
+            setter.invoke(instance, value);
+        } catch (InvocationTargetException | IllegalAccessException | NoSuchMethodException e) {
             throw new PropertyManufactureException(e);
         }
     }

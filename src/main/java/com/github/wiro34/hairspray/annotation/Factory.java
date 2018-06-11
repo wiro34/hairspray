@@ -1,14 +1,16 @@
 package com.github.wiro34.hairspray.annotation;
 
-import com.github.wiro34.hairspray.FixtureFactory;
+import com.github.wiro34.hairspray.Hairspray;
+
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
+
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * インスタンスを初期化するためのファクトリを表します。 このアノテーションが付与されたクラスは、{@link FixtureFactory} の各メソッドで
+ * インスタンスを初期化するためのファクトリを表します。 このアノテーションが付与されたクラスは、{@link Hairspray} の各メソッドで
  * インスタンスが生成された後、プロパティの設定のために呼びだされます。
  *
  * <p>
@@ -36,5 +38,6 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Retention(RUNTIME)
 @Target(ElementType.TYPE)
 public @interface Factory {
-    public Class<?> value();
+
+    Class<?> value();
 }

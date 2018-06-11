@@ -4,9 +4,9 @@ import java.util.Random;
 import org.testng.annotations.Test;
 import static org.testng.AssertJUnit.*;
 
-public class MemorizerTest {
+public class MemorizedTest {
 
-    private final Memorizer<Integer> mem = new Memorizer<>(this::generateRandomNumber);
+    private final Memorized<Integer> mem = new Memorized<>(this::generateRandomNumber);
 
     private int generateRandomNumber() {
         return new Random().nextInt();

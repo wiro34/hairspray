@@ -1,4 +1,4 @@
-package com.github.wiro34.hairspray.factory_loader;
+package com.github.wiro34.hairspray.factory.builder;
 
 import com.github.wiro34.hairspray.exception.RuntimeInstantiationException;
 
@@ -11,7 +11,7 @@ import java.util.Optional;
 import java.util.Set;
 
 @ApplicationScoped
-public class ManagedBeanFactoryProvider implements FactoryProvider {
+public class ManagedBeanFactoryBuilder implements FactoryBuilder {
     @Inject
     private BeanManager beanManager;
 

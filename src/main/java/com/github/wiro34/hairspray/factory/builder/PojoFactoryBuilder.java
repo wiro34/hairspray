@@ -1,8 +1,8 @@
-package com.github.wiro34.hairspray.factory_loader;
+package com.github.wiro34.hairspray.factory.builder;
 
 import com.github.wiro34.hairspray.exception.RuntimeInstantiationException;
 
-public class PojoFactoryProvider implements FactoryProvider {
+public class PojoFactoryBuilder implements FactoryBuilder{
 
     @Override
     public <T> T getFactoryInstance(Class<T> factoryClass) {

@@ -1,10 +1,11 @@
-package com.github.wiro34.hairspray.factory_loader;
+package com.github.wiro34.hairspray.factory;
 
-import com.github.wiro34.hairspray.arquillian.ArquillianTest;
+import com.github.wiro34.hairspray.ArquillianTest;
 import com.github.wiro34.hairspray.dummy_models.Post;
 import com.github.wiro34.hairspray.dummy_models.PostFactory;
 import com.github.wiro34.hairspray.dummy_models.User;
 import com.github.wiro34.hairspray.dummy_models.UserFactory;
+import com.github.wiro34.hairspray.factory.FactoryLoader;
 import org.testng.annotations.Test;
 
 import java.util.Comparator;

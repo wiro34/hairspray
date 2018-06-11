@@ -1,24 +1,20 @@
-package com.github.wiro34.hairspray;
+package com.github.wiro34.hairspray.factory;
 
 import com.github.wiro34.hairspray.dummy_models.User;
 import com.github.wiro34.hairspray.dummy_models.User.Sex;
 import com.github.wiro34.hairspray.dummy_models.UserFactory;
 import org.testng.annotations.Test;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNull;
-import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.*;
 
 public class InstanceAssemblerTest {
 
-    private InstanceAssembler assembler = new InstanceAssembler(User.class);
-
-    private final UserFactory factory = new UserFactory();
+    private InstanceAssembler assembler = new InstanceAssembler(User.class, new UserFactory());
 
     @Test
     public void assembleInstantFields() {
         User user = new User();
-        assembler.assembleInstantFields(user, factory);
+        assembler.assembleInstantFields(user);
         assertEquals(user.getId(), null);
         assertEquals(user.getFirstName(), "John");
         assertEquals(user.getLastName(), "Doe");
@@ -33,7 +29,7 @@ public class InstanceAssemblerTest {
     public void assemble() {
         User user = new User();
         user.setFirstName("John");
-        assembler.assembleLazyFields(user, factory);
+        assembler.assembleLazyFields(user);
         assertEquals(user.getSex(), Sex.MALE);
     }
 
@@ -41,7 +37,7 @@ public class InstanceAssemblerTest {
     public void assemble_updateByLazyFunction() {
         User user = new User();
         user.setFirstName("Jane");
-        assembler.assembleLazyFields(user, factory);
+        assembler.assembleLazyFields(user);
         assertEquals(user.getSex(), Sex.FEMALE);
     }
 
@@ -50,7 +46,7 @@ public class InstanceAssemblerTest {
         User user = new User();
         user.setFirstName("Jane");
         user.setSex(Sex.MALE);
-        assembler.assembleLazyFields(user, factory);
+        assembler.assembleLazyFields(user);
         assertEquals(user.getFirstName(), "Jane");
         assertEquals(user.getSex(), Sex.FEMALE);
     }

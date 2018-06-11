@@ -1,20 +1,21 @@
-package com.github.wiro34.hairspray.factory_loader;
+package com.github.wiro34.hairspray.factory.builder;
 
 import com.github.wiro34.hairspray.dummy_models.UserFactory;
 import com.github.wiro34.hairspray.exception.RuntimeInstantiationException;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-import static org.testng.AssertJUnit.*;
 
-public class PojoFactoryProviderTest {
+import static org.testng.AssertJUnit.assertNotNull;
 
-    private final PojoFactoryProvider factoryLoader = new PojoFactoryProvider();
+public class PojoFactoryBuilderTest {
+
+    private final PojoFactoryBuilder builder = new PojoFactoryBuilder();
 
     private UserFactory factory;
 
     @BeforeMethod
     public void setUp() {
-        factory = factoryLoader.getFactoryInstance(UserFactory.class);
+        factory = builder.getFactoryInstance(UserFactory.class);
     }
 
     @Test
@@ -24,7 +25,7 @@ public class PojoFactoryProviderTest {
 
     @Test(expectedExceptions = RuntimeInstantiationException.class)
     public void testGetFactoryInstanceWhenFactoryClassHasNoDefaultConstractor() {
-        factoryLoader.getFactoryInstance(InvalidFormFactory.class);
+        builder.getFactoryInstance(InvalidFormFactory.class);
     }
 
     public static class InvalidFormFactory {

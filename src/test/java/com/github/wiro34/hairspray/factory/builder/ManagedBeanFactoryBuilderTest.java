@@ -1,7 +1,6 @@
-package com.github.wiro34.hairspray.factory_loader;
+package com.github.wiro34.hairspray.factory.builder;
 
-import com.github.wiro34.hairspray.Hairspray;
-import com.github.wiro34.hairspray.arquillian.ArquillianTest;
+import com.github.wiro34.hairspray.ArquillianTest;
 import com.github.wiro34.hairspray.dummy_models.User;
 import com.github.wiro34.hairspray.dummy_models.UserFactory;
 import com.github.wiro34.hairspray.exception.RuntimeInstantiationException;
@@ -11,25 +10,24 @@ import javax.inject.Inject;
 
 import static org.testng.AssertJUnit.assertNotNull;
 
-public class ManagedBeanFactoryProviderTest extends ArquillianTest {
-    @Inject
-    private Hairspray factorsy;
+public class ManagedBeanFactoryBuilderTest extends ArquillianTest {
 
     @Inject
-    private ManagedBeanFactoryProvider factoryLoader;
+    private ManagedBeanFactoryBuilder builder;
 
     @Test
     public void testGetFactoryInstance() throws Exception {
-        UserFactory factory = factoryLoader.getFactoryInstance(UserFactory.class);
+        UserFactory factory = builder.getFactoryInstance(UserFactory.class);
         User user = new User();
         assertNotNull(factory);
     }
 
     @Test(expectedExceptions = RuntimeInstantiationException.class)
     public void testGetFactoryInstanceWhenFactoryIsUnregistered() throws Exception {
-        factoryLoader.getFactoryInstance(UnregisteredFactory.class);
+        builder.getFactoryInstance(UnregisteredFactory.class);
     }
 
-    public static class UnregisteredFactory {
+    private static class UnregisteredFactory {
+
     }
 }

@@ -1,57 +1,228 @@
 package com.github.wiro34.hairspray;
 
-import com.github.wiro34.hairspray.exception.RuntimeInstantiationException;
-import com.github.wiro34.hairspray.factory_loader.FactoryProvider;
-import com.github.wiro34.hairspray.factory_loader.ManagedBeanFactoryProvider;
-import com.github.wiro34.hairspray.factory_loader.PojoFactoryProvider;
+import com.github.wiro34.hairspray.annotation.Factory;
+import com.github.wiro34.hairspray.factory.strategy.BuildStrategy;
+import com.github.wiro34.hairspray.factory.strategy.CreateStrategy;
+import com.github.wiro34.hairspray.factory.strategy.InstantiationStrategy;
 
-import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
+import java.util.List;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 @ApplicationScoped
-public class Hairspray extends FixtureFactory {
-    @Inject
-    private EntityManager entityManager;
+public class Hairspray {
 
     @Inject
-    private ManagedBeanFactoryProvider managedBeanFactoryProvider;
+    private BuildStrategy buildStrategy = new BuildStrategy();
 
-    private FactoryProvider factoryProvider = new PojoFactoryProvider();
+    @Inject
+    private CreateStrategy createStrategy = new CreateStrategy();
 
-    @PostConstruct
-    private void search() {
-        factoryProvider = managedBeanFactoryProvider;
+    private <T> T assemble(Class<T> clazz, InstantiationStrategy strategy, BiConsumer<T, Integer> initializer, int index) {
+        return strategy.getInstance(clazz, initializer, index);
     }
 
-    @Override
-    public <T> T build(Class<T> clazz, BiConsumer<T, Integer> initializer, int index) {
-        try {
-            final InstanceAssembler assembler = new InstanceAssembler(clazz);
-            final T instance = clazz.newInstance();
-            return factoryProvider.findFactoryFor(clazz)
-                    .map(f -> {
-                        assembler.assembleInstantFields(instance, f);
-                        initializer.accept(instance, index);
-                        assembler.assembleLazyFields(instance, f);
-                        return instance;
-                    })
-                    .orElseThrow(() -> new RuntimeInstantiationException("Factory is undefined: class=" + clazz.getSimpleName()));
-        } catch (InstantiationException | IllegalAccessException e) {
-            throw new RuntimeInstantiationException(e);
-        }
+    private <T> T build(Class<T> clazz, BiConsumer<T, Integer> initializer, int index) {
+        return assemble(clazz, buildStrategy, initializer, index);
     }
 
-    @Override
-    public <T> T create(Class<T> clazz, BiConsumer<T, Integer> initializer, int index) {
-        final T instance = build(clazz, initializer, index);
-        try {
-            entityManager.persist(instance);
-        } catch (Exception e) {
-            throw new RuntimeInstantiationException(e);
-        }
-        return instance;
+    private <T> T create(Class<T> clazz, BiConsumer<T, Integer> initializer, int index) {
+        return assemble(clazz, createStrategy, initializer, index);
+    }
+
+    /**
+     * 指定したクラスのインスタンスを生成します。
+     * <p>
+     * 生成されたインスタンスは指定されたクラスのファクトリによって初期化されます。
+     *
+     * @param <T>   生成するクラス
+     * @param clazz 生成するクラス
+     * @return 生成されたインスタンス
+     * @see Factory } の JavaDoc を参照してください。
+     * @see Factory
+     */
+    public <T> T build(Class<T> clazz) {
+        return build(clazz, noop());
+    }
+
+    /**
+     * 指定したクラスのインスタンスを生成します。
+     * <p>
+     * 生成されたインスタンスは指定されたクラスのファクトリによって初期化されます。
+     *
+     * @param <T>         生成するクラス
+     * @param clazz       生成するクラス
+     * @param initializer 再初期化処理
+     * @return 生成されたインスタンス
+     * @see Factory} の JavaDoc を参照してください。
+     * <p>
+     * インスタンスが生成された後、さらに initializer によって再初期化を行います。
+     * @see Factory
+     */
+    public <T> T build(Class<T> clazz, Consumer<T> initializer) {
+        return build(clazz, (t, n) -> initializer.accept(t), 0);
+    }
+
+    /**
+     * 指定したクラスのインスタンスを指定された数だけ生成します。
+     * <p>
+     * 生成されたインスタンスは指定されたクラスのファクトリによって初期化されます。
+     *
+     * @param <T>   生成するクラス
+     * @param clazz 生成するクラス
+     * @param size  生成するインスタンスの数
+     * @return 生成されたインスタンスのリスト
+     * @see Factory} の JavaDoc を参照してください。
+     * @see Factory
+     */
+    public <T> List<T> buildList(Class<T> clazz, int size) {
+        return buildList(clazz, size, noop());
+    }
+
+    /**
+     * 指定したクラスのインスタンスを指定された数だけ生成します。
+     * <p>
+     * 生成されたインスタンスは指定されたクラスのファクトリによって初期化されます。
+     *
+     * @param <T>         生成するクラス
+     * @param clazz       生成するクラス
+     * @param size        生成するインスタンスの数
+     * @param initializer 再初期化処理
+     * @return 生成されたインスタンスのリスト
+     * @see Factory} の JavaDoc を参照してください。
+     * <p>
+     * インスタンスが生成された後、さらに initializer によって再初期化を行います。
+     * @see Factory
+     */
+    public <T> List<T> buildList(Class<T> clazz, int size, Consumer<T> initializer) {
+        return Stream
+                .generate(() -> build(clazz, initializer))
+                .limit(size)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 指定したクラスのインスタンスを指定された数だけ生成します。
+     * <p>
+     * 生成されたインスタンスは指定されたクラスのファクトリによって初期化されます。
+     *
+     * @param <T>         生成するクラス
+     * @param clazz       生成するクラス
+     * @param size        生成するインスタンスの数
+     * @param initializer 再初期化処理
+     * @return 生成されたインスタンスのリスト
+     * @see Factory} の JavaDoc を参照してください。
+     * <p>
+     * インスタンスが生成された後、さらに initializer によって再初期化を行います。 initializer
+     * には生成されたインスタンスと要素番号が渡されます。
+     * @see Factory
+     */
+    public <T> List<T> buildList(Class<T> clazz, int size, BiConsumer<T, Integer> initializer) {
+        return IntStream.range(0, size)
+                .mapToObj(n -> build(clazz, initializer, n))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 指定したクラスのインスタンスを生成し、永続化します。
+     * <p>
+     * 生成されたインスタンスは指定されたクラスのファクトリによって初期化されます。
+     *
+     * @param <T>         生成するクラス
+     * @param clazz       生成するクラス
+     * @param initializer 再初期化処理
+     * @return 生成されたインスタンスのリスト
+     * @see Factory} の JavaDoc を参照してください。
+     * <p>
+     * インスタンスが生成された後、さらに initializer によって再初期化を行います。
+     * @see Factory
+     */
+    public <T> T create(Class<T> clazz, Consumer<T> initializer) {
+        return create(clazz, (t, n) -> initializer.accept(t), 0);
+    }
+
+    /**
+     * 指定したクラスのインスタンスを生成し、永続化します。
+     * <p>
+     * 生成されたインスタンスは指定されたクラスのファクトリによって初期化されます。
+     *
+     * @param <T>   生成するクラス
+     * @param clazz 生成するクラス
+     * @return 生成されたインスタンスのリスト
+     * @see Factory} の JavaDoc を参照してください。
+     * @see Factory
+     */
+    public <T> T create(Class<T> clazz) {
+        return create(clazz, noop());
+    }
+
+    /**
+     * 指定したクラスのインスタンスを生成し、永続化します。
+     * <p>
+     * 生成されたインスタンスは指定されたクラスのファクトリによって初期化されます。
+     *
+     * @param <T>   生成するクラス
+     * @param clazz 生成するクラス
+     * @param size  生成するインスタンスの数
+     * @return 生成されたインスタンスのリスト
+     * @see Factory} の JavaDoc を参照してください。
+     * @see Factory
+     */
+    public <T> List<T> createList(Class<T> clazz, int size) {
+        return createList(clazz, size, noop());
+    }
+
+    /**
+     * 指定したクラスのインスタンスを生成し、永続化します。
+     * <p>
+     * 生成されたインスタンスは指定されたクラスのファクトリによって初期化されます。
+     *
+     * @param <T>         生成するクラス
+     * @param clazz       生成するクラス
+     * @param size        生成するインスタンスの数
+     * @param initializer 再初期化処理
+     * @return 生成されたインスタンスのリスト
+     * @see Factory} の JavaDoc を参照してください。
+     * <p>
+     * インスタンスが生成された後、さらに initializer によって再初期化を行い、 その後永続化します。
+     * @see Factory
+     */
+    public <T> List<T> createList(Class<T> clazz, int size, Consumer<T> initializer) {
+        return Stream
+                .generate(() -> create(clazz, initializer))
+                .limit(size)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 指定したクラスのインスタンスを生成し、永続化します。
+     * <p>
+     * 生成されたインスタンスは指定されたクラスのファクトリによって初期化されます。
+     *
+     * @param <T>         生成するクラス
+     * @param clazz       生成するクラス
+     * @param size        生成するインスタンスの数
+     * @param initializer 再初期化処理
+     * @return 生成されたインスタンスのリスト
+     * @see Factory} の JavaDoc を参照してください。
+     * <p>
+     * インスタンスが生成された後、さらに initializer によって再初期化を行い、 その後永続化します。 initializer
+     * には生成されたインスタンスと要素番号が渡されます。
+     * @see Factory
+     */
+    public <T> List<T> createList(Class<T> clazz, int size, BiConsumer<T, Integer> initializer) {
+        return IntStream.range(0, size)
+                .mapToObj(n -> create(clazz, initializer, n))
+                .collect(Collectors.toList());
+    }
+
+    private <T> Consumer<T> noop() {
+        return (t) -> {
+        };
     }
 }

@@ -1,4 +1,6 @@
-package com.github.wiro34.hairspray.factory_loader;
+package com.github.wiro34.hairspray.extension;
+
+import com.github.wiro34.hairspray.factory.FactoryLoader;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
@@ -30,7 +32,6 @@ public class FactoryLoadingExtension implements Extension {
                 .reduce(new ArrayList<>(),
                         (classes, factoryClass) -> {
                             classes.add(factoryClass);
-                            // classes.addAll(injectableFields(factoryClass));
                             return classes;
                         }, (BinaryOperator<List<Class<?>>>) (left, right) -> {
                             left.addAll(right);
@@ -41,15 +42,6 @@ public class FactoryLoadingExtension implements Extension {
                 .collect(Collectors.toList());
 
     }
-
-    /*
-    private List<Class<?>> injectableFields(Class<?> factoryClass) {
-        return Arrays.stream(factoryClass.getDeclaredFields())
-                .filter(field -> field.isAnnotationPresent(Inject.class))
-                .map(Field::getType)
-                .collect(Collectors.toList());
-    }
-    */
 
     private static <T> Bean<T> createBean(BeanManager bm, Class<T> clazz) {
         AnnotatedType<T> at = bm.createAnnotatedType(clazz);

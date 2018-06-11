@@ -1,6 +1,5 @@
 package com.github.wiro34.hairspray;
 
-import com.github.wiro34.hairspray.arquillian.ArquillianTest;
 import com.github.wiro34.hairspray.dummy_models.Post;
 import com.github.wiro34.hairspray.dummy_models.User;
 import com.github.wiro34.hairspray.dummy_models.User.Sex;
@@ -8,7 +7,6 @@ import org.testng.annotations.Test;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
-import javax.transaction.Transactional;
 import java.math.BigInteger;
 import java.util.List;
 
@@ -37,7 +35,7 @@ public class HairsprayTest extends ArquillianTest {
 
     @Test
     public void testBuildWithInitializer() {
-        User user = factory.create(User.class, (u) -> {
+        User user = factory.build(User.class, (u) -> {
             u.setFirstName("Jane");
         });
         assertEquals(user.getFullName(), "Jane Doe");
@@ -46,7 +44,7 @@ public class HairsprayTest extends ArquillianTest {
 
     @Test
     public void testBuildListWithInitializer() {
-        List<User> users = factory.createList(User.class, 3, (u, n) -> {
+        List<User> users = factory.buildList(User.class, 3, (u, n) -> {
             u.setFirstName("Agent");
             u.setLastName("Smith #" + (n + 1));
         });
