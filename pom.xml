@@ -6,7 +6,7 @@
 
     <groupId>com.github.wiro34</groupId>
     <artifactId>hairspray</artifactId>
-    <version>0.2.3.Alpha</version>
+    <version>0.2.3</version>
     <name>hairspray</name>
     <description>A fixture library for testing</description>
     <packaging>pom</packaging>
@@ -25,7 +25,7 @@
             <dependency>
                 <groupId>com.github.wiro34</groupId>
                 <artifactId>hairspray-core</artifactId>
-                <version>0.2.3.Alpha</version>
+                <version>0.2.3</version>
             </dependency>
 
             <dependency>
