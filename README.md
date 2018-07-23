@@ -12,7 +12,7 @@ Add dependency to pom.xml:
 <dependency>
     <groupId>com.github.wiro34</groupId>
     <artifactId>hairspray-jpa</artifactId>
-    <version>0.2.3</version>
+    <version>0.2.4</version>
 </dependency>
 ```
 
@@ -22,7 +22,7 @@ If you don't use JPA, please add the following dependency.
 <dependency>
     <groupId>com.github.wiro34</groupId>
     <artifactId>hairspray-core</artifactId>
-    <version>0.2.3</version>
+    <version>0.2.4</version>
 </dependency>
 ```
 
