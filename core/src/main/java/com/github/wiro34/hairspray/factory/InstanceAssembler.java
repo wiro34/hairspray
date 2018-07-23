@@ -13,6 +13,7 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import static com.github.wiro34.hairspray.misc.StreamHelper.throwingFunction;
+import static com.github.wiro34.hairspray.misc.StreamHelper.throwingPredicate;
 
 /**
  * インスタンスの各フィールドをファクトリに従って初期化するクラス
@@ -37,7 +38,10 @@ public class InstanceAssembler {
     }
 
     public void assembleLazyFields(Object instance) {
-        copyFields(instance, factory, (f) -> isInstanceOf(f, Lazy.class));
+        copyFields(instance, factory, throwingPredicate((f) ->
+                isInstanceOf(f, Lazy.class) &&
+                        getGetterMethod(modelClass.getDeclaredField(f.getName())).invoke(instance) == null
+        ));
     }
 
     private void copyFields(Object instance, Object factory, Predicate<Field> condition) {
@@ -66,15 +70,19 @@ public class InstanceAssembler {
 
     private void setInternalState(Object instance, FieldPair pair, Object value) {
         try {
-            Method setter = getSetterMethod(modelClass, pair.modelField);
+            Method setter = getSetterMethod(pair.modelField);
             setter.invoke(instance, value);
         } catch (InvocationTargetException | IllegalAccessException | NoSuchMethodException e) {
             throw new PropertyManufactureException(e);
         }
     }
 
-    private Method getSetterMethod(Class<?> clazz, Field field) throws NoSuchMethodException {
-        return clazz.getMethod(getAccessorMethodName("set", field), field.getType());
+    private Method getSetterMethod(Field field) throws NoSuchMethodException {
+        return modelClass.getMethod(getAccessorMethodName("set", field), field.getType());
+    }
+
+    private Method getGetterMethod(Field field) throws NoSuchMethodException {
+        return modelClass.getMethod(getAccessorMethodName("get", field));
     }
 
     private String getAccessorMethodName(String accessorType, Field field) throws NoSuchMethodException {

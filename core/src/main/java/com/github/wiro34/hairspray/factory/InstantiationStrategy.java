@@ -21,8 +21,8 @@ public abstract class InstantiationStrategy {
             if (initializer != null) {
                 initializer.accept(instance, index);
             }
-            this.afterAssemble(instance, assembler);
             assembler.assembleLazyFields(instance);
+            afterAssemble(instance, assembler);
             return instance;
         } catch (InstantiationException | IllegalAccessException e) {
             throw new RuntimeInstantiationException(e);

@@ -3,6 +3,8 @@ package com.github.wiro34.hairspray.factory;
 import com.github.wiro34.hairspray.dummy_models.User;
 import com.github.wiro34.hairspray.dummy_models.User.Sex;
 import com.github.wiro34.hairspray.dummy_models.UserFactory;
+import lombok.Data;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.time.LocalDateTime;
@@ -35,29 +37,28 @@ public class InstanceAssemblerTest {
         assertEquals(user.getCreatedAt(), LocalDateTime.of(2112, 1, 2, 3, 4, 56, 0));
     }
 
-    @Test
-    public void assembleLazyFields() {
+    @DataProvider
+    public Object[][] provideDataForLazyFields() {
+        return new Object[][]{
+                {"John", Sex.MALE},
+                {"Jane", Sex.FEMALE}
+        };
+    }
+
+    @Test(dataProvider = "provideDataForLazyFields")
+    public void assembleLazyFields(String firstName, Sex sex) {
         User user = new User();
-        user.setFirstName("John");
+        user.setFirstName(firstName);
         assembler.assembleLazyFields(user);
-        assertEquals(user.getSex(), Sex.MALE);
+        assertEquals(user.getSex(), sex);
     }
 
     @Test
-    public void assembleLazyFields_updateByLazyFunction() {
-        User user = new User();
-        user.setFirstName("Jane");
-        assembler.assembleLazyFields(user);
-        assertEquals(user.getSex(), Sex.FEMALE);
-    }
-
-    @Test
-    public void assembleLazyFields_updateWithoutDefaultValue() {
+    public void assembleLazyFields_whenValueAlreadySet() {
         User user = new User();
         user.setFirstName("Jane");
         user.setSex(Sex.MALE);
         assembler.assembleLazyFields(user);
-        assertEquals(user.getFirstName(), "Jane");
-        assertEquals(user.getSex(), Sex.FEMALE);
+        assertEquals(user.getSex(), Sex.MALE);
     }
 }
